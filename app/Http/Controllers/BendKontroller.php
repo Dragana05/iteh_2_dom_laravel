@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BendResource;
 use App\Models\Bend;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class BendKontroller extends Controller
 {
@@ -14,7 +17,10 @@ class BendKontroller extends Controller
      */
     public function index()
     {
-        //
+        $bendovi = DB::table('bends')->get();
+
+
+        return BendResource::collection($bendovi);
     }
 
     /**
@@ -35,7 +41,27 @@ class BendKontroller extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'naziv' => 'required',
+            'brojClanova' => 'required',
+            'youtube' => 'required',
+            'instagram' => 'required'
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $bend_id = DB::table('bends')->insertGetId([
+            'naziv' => $request->naziv,
+            'brojClanova' => $request->brojClanova,
+            'youtube' => $request->youtube,
+            'instagram' => $request->instagram
+        ]);
+
+        $bend = DB::table('bends')->where('id', $bend_id)->first();
+        return response()->json(new BendResource($bend));
     }
 
     /**
@@ -44,9 +70,12 @@ class BendKontroller extends Controller
      * @param  \App\Models\Bend  $bend
      * @return \Illuminate\Http\Response
      */
-    public function show(Bend $bend)
+    public function show($id)
     {
-        //
+        $bend = DB::table('bends')->where('id', $id)->first();
+
+
+        return new BendResource($bend);
     }
 
     /**
@@ -78,8 +107,11 @@ class BendKontroller extends Controller
      * @param  \App\Models\Bend  $bend
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Bend $bend)
+    public function destroy($id)
     {
-        //
+        DB::table('bends')->where('id', $id)->delete();
+
+        
+        return response()->json('Bend je obrisan!');
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Pevac;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class PevacKontroller extends Controller
 {
@@ -14,7 +16,9 @@ class PevacKontroller extends Controller
      */
     public function index()
     {
-        //
+        $pevaci = DB::table('pevacs')->get();
+
+        return response()->json($pevaci);
     }
 
     /**
@@ -44,9 +48,12 @@ class PevacKontroller extends Controller
      * @param  \App\Models\Pevac  $pevac
      * @return \Illuminate\Http\Response
      */
-    public function show(Pevac $pevac)
+    public function show($id)
     {
-        //
+        $pevac = DB::table('pevacs')->where('id', $id)->first();
+
+        
+        return response()->json($pevac);
     }
 
     /**
